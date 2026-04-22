@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nested If Practice | CS 1430</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0d1117;
+    --panel:    #161b22;
+    --panel-2:  #1c2330;
+    --border:   #30363d;
+    --border-2: #3d4451;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --accent:   #79c0ff;
+    --keyword:  #ff7b72;
+    --string:   #a5d6ff;
+    --number:   #f8c555;
+    --comment:  #8b949e;
+    --success:  #3fb950;
+    --success-2:#238636;
+    --error:    #f85149;
+    --error-2:  #da3633;
+    --gold:     #ffd33d;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+
+  body {
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(121, 192, 255, 0.08), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(255, 123, 114, 0.06), transparent 60%),
+      var(--bg);
+  }
+
+  .scaleWrap {
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px;
+    transform-origin: top center;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 760px;
+  }
+
+  header.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .title .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(121, 192, 255, 0.10);
+    padding: 5px 9px;
+    border: 1px solid rgba(121, 192, 255, 0.25);
+    border-radius: 6px;
+  }
+
+  .title h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .title h1 .sub {
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .scorebar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+  }
+
+  .streak {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pip {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--panel-2);
+    border: 1px solid var(--border-2);
+    transition: all 0.25s ease;
+  }
+
+  .pip.lit {
+    background: var(--success);
+    border-color: var(--success);
+    box-shadow: 0 0 10px rgba(63, 185, 80, 0.6);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .stat .label {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 10px;
+  }
+
+  .stat .value {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .prompt-line {
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .prompt-line strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  pre.code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    background: #010409;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin: 0;
+    overflow-x: auto;
+    tab-size: 4;
+  }
+
+  .tok-kw   { color: var(--keyword); font-weight: 500; }
+  .tok-str  { color: var(--string); }
+  .tok-num  { color: var(--number); }
+  .tok-var  { color: var(--text); }
+  .tok-op   { color: #ff7b72; }
+  .tok-comment { color: var(--comment); font-style: italic; }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+    margin-top: 14px;
+  }
+
+  .input-row .prefix {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  input[type=text] {
+    flex: 1;
+    background: #010409;
+    color: var(--string);
+    border: 1px solid var(--border-2);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.15s ease;
+  }
+
+  input[type=text]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(121, 192, 255, 0.15);
+  }
+
+  input[type=text]::placeholder {
+    color: #4b5563;
+  }
+
+  .btn {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 11px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-2);
+    background: var(--panel-2);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    letter-spacing: 0.01em;
+  }
+
+  .btn:hover {
+    background: #252d3a;
+    border-color: var(--accent);
+  }
+
+  .btn.primary {
+    background: linear-gradient(180deg, #2f81f7, #1f6feb);
+    border-color: #1f6feb;
+    color: white;
+    box-shadow: 0 2px 8px rgba(47, 129, 247, 0.25);
+  }
+
+  .btn.primary:hover {
+    background: linear-gradient(180deg, #388bff, #2875e6);
+    border-color: #388bff;
+  }
+
+  .btn.success {
+    background: linear-gradient(180deg, var(--success), var(--success-2));
+    border-color: var(--success-2);
+    color: white;
+  }
+
+  .feedback {
+    margin-top: 14px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    font-size: 14.5px;
+    line-height: 1.55;
+  }
+
+  .feedback.correct {
+    border-color: var(--success);
+    background: rgba(63, 185, 80, 0.08);
+  }
+
+  .feedback.wrong {
+    border-color: var(--error);
+    background: rgba(248, 81, 73, 0.06);
+  }
+
+  .feedback h3 {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .feedback.correct h3 { color: var(--success); }
+  .feedback.wrong h3 { color: var(--error); }
+
+  .icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+  }
+
+  .trace {
+    margin-top: 10px;
+    background: #010409;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  .trace .step {
+    display: flex;
+    gap: 10px;
+    padding: 3px 0;
+  }
+
+  .trace .step-num {
+    color: var(--accent);
+    flex-shrink: 0;
+    min-width: 20px;
+  }
+
+  .trace .step-text { color: var(--text); }
+
+  .trace .t { color: var(--success); font-weight: 600; }
+  .trace .f { color: var(--error); font-weight: 600; }
+  .trace .str { color: var(--string); }
+
+  .retry-box {
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 8px;
+    background: rgba(255, 211, 61, 0.06);
+    border: 1px solid rgba(255, 211, 61, 0.3);
+    font-size: 14px;
+  }
+
+  .retry-box .label {
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .answer-reveal {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    background: #010409;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--string);
+    border: 1px solid var(--border);
+  }
+
+  .celebration {
+    text-align: center;
+    padding: 30px 20px;
+  }
+
+  .celebration .big {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gold), #ff7b72);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .celebration .sub {
+    color: var(--muted);
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .hidden { display: none !important; }
+
+  .shake { animation: shake 0.35s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+
+  .pop { animation: pop 0.35s ease; }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+
+  .footer-hint {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .footer-hint kbd {
+    background: var(--panel);
+    border: 1px solid var(--border-2);
+    border-bottom-width: 2px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  @media (max-width: 520px) {
+    .scorebar { width: 100%; justify-content: space-between; }
+    .input-row { flex-direction: column; }
+    .title h1 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="scaleWrap" id="scaleWrap">
+  <div class="app">
+
+    <header class="top">
+      <div class="title">
+        <span class="badge">CS 1430</span>
+        <h1>Nested If Practice <span class="sub">// trace the logic</span></h1>
+      </div>
+      <div class="scorebar">
+        <div class="streak" id="streak" title="Streak toward 3 in a row">
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+        </div>
+        <div class="stat">
+          <span class="label">Solved</span>
+          <span class="value" id="solvedCount">0</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="panel" id="problemPanel">
+      <div class="prompt-line">Read the code carefully. <strong>What will <code style="font-family:'JetBrains Mono',monospace;color:var(--accent)">print(z)</code> output?</strong></div>
+      <pre class="code" id="codeBlock"></pre>
+
+      <div class="input-row" id="inputRow">
+        <div class="prefix"><span style="color:var(--keyword)">print</span>(z) <span style="color:var(--muted)">→</span></div>
+        <input type="text" id="answerInput" placeholder="type your answer..." autocomplete="off" spellcheck="false">
+        <button class="btn primary" id="submitBtn">Submit</button>
+      </div>
+
+      <div class="feedback hidden" id="feedback"></div>
+
+      <div class="footer-hint">press <kbd>Enter</kbd> to submit · <kbd>N</kbd> for next problem</div>
+    </div>
+
+    <div class="panel hidden" id="winPanel">
+      <div class="celebration">
+        <div class="big">3 in a row!</div>
+        <div class="sub">Nice tracing. You locked in the logic.</div>
+        <button class="btn success" id="continueBtn">Keep Going</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // URL parameter scaling for Canvas embed
+  const params = new URLSearchParams(window.location.search);
+  const scale = parseFloat(params.get('scale'));
+  if (!isNaN(scale) && scale > 0 && scale <= 3) {
+    const wrap = document.getElementById('scaleWrap');
+    wrap.style.transform = `scale(${scale})`;
+    wrap.style.width = `${100 / scale}%`;
+  }
+
+  // -------- Generator --------
+
+  const WORD_POOL = [
+    'easy', 'hard', 'trick', 'unknown', 'alpha', 'beta', 'gamma', 'delta',
+    'yes', 'no', 'maybe', 'win', 'lose', 'draw', 'cool', 'warm', 'cold',
+    'red', 'blue', 'green', 'gold', 'small', 'medium', 'large', 'extra'
+  ];
+
+  const OPS = ['>', '<', '==', '!=', '>=', '<='];
+
+  function rand(n) { return Math.floor(Math.random() * n); }
+  function choice(arr) { return arr[rand(arr.length)]; }
+
+  function pickWords(n) {
+    const pool = [...WORD_POOL];
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const idx = rand(pool.length);
+      out.push(pool.splice(idx, 1)[0]);
+    }
+    return out;
+  }
+
+  function generateValues() {
+    // 30% chance of equal values so == / >= / <= become interesting
+    let a, b;
+    if (Math.random() < 0.30) {
+      a = rand(8) + 1;
+      b = a;
+    } else {
+      a = rand(8) + 1;
+      b = rand(8) + 1;
+    }
+    return { a, b };
+  }
+
+  function evalOp(a, op, b) {
+    switch (op) {
+      case '>':  return a > b;
+      case '<':  return a < b;
+      case '==': return a === b;
+      case '!=': return a !== b;
+      case '>=': return a >= b;
+      case '<=': return a <= b;
+    }
+    return false;
+  }
+
+  // Problem templates. Each returns { lines, answer, trace }
+  // where lines is the code as array of strings, answer is the final z value,
+  // and trace is an array of step objects for the explanation.
+
+  const TEMPLATES = [
+
+    // Template 1: nested if inside the outer if-branch (Dan's example pattern)
+    // if a op1 b:
+    //     z = v1
+    //     if a op2 b:
+    //         z = v2
+    //     else:
+    //         z = v3
+    // else:
+    //     z = v4
+    function tmplNestedIn_If() {
+      const { a, b } = generateValues();
+      const op1 = choice(OPS), op2 = choice(OPS);
+      const [v1, v2, v3, v4] = pickWords(4);
+      const lines = [
+        `a = ${a}`,
+        `b = ${b}`,
+        `z = ""`,
+        `if a ${op1} b:`,
+        `    z = "${v1}"`,
+        `    if a ${op2} b:`,
+        `        z = "${v2}"`,
+        `    else:`,
+        `        z = "${v3}"`,
+        `else:`,
+        `    z = "${v4}"`,
+        ``,
+        `print(z)`
+      ];
+      const trace = [];
+      trace.push({ text: `Start with a = ${a}, b = ${b}, z = ""` });
+      const c1 = evalOp(a, op1, b);
+      trace.push({ text: `Check outer: a ${op1} b → ${a} ${op1} ${b} is`, result: c1 });
+      let answer;
+      if (c1) {
+        trace.push({ text: `Enter the if branch. Assign z = `, str: v1 });
+        const c2 = evalOp(a, op2, b);
+        trace.push({ text: `Check inner: a ${op2} b → ${a} ${op2} ${b} is`, result: c2 });
+        if (c2) {
+          trace.push({ text: `Inner if is True. Reassign z = `, str: v2 });
+          answer = v2;
+        } else {
+          trace.push({ text: `Inner if is False. Enter else. Reassign z = `, str: v3 });
+          answer = v3;
+        }
+      } else {
+        trace.push({ text: `Outer is False. Enter else. Assign z = `, str: v4 });
+        answer = v4;
+      }
+      trace.push({ text: `print(z) outputs `, str: answer });
+      return { lines, answer, trace };
+    },
+
+    // Template 2: nested if inside the outer else-branch
+    function tmplNestedIn_Else() {
+      const { a, b } = generateValues();
+      const op1 = choice(OPS), op2 = choice(OPS);
+      const [v1, v2, v3, v4] = pickWords(4);
+      const lines = [
+        `a = ${a}`,
+        `b = ${b}`,
+        `z = ""`,
+        `if a ${op1} b:`,
+        `    z = "${v1}"`,
+        `else:`,
+        `    z = "${v2}"`,
+        `    if a ${op2} b:`,
+        `        z = "${v3}"`,
+        `    else:`,
+        `        z = "${v4}"`,
+        ``,
+        `print(z)`
+      ];
+      const trace = [];
+      trace.push({ text: `Start with a = ${a}, b = ${b}, z = ""` });
+      const c1 = evalOp(a, op1, b);
+      trace.push({ text: `Check outer: a ${op1} b → ${a} ${op1} ${b} is`, result: c1 });
+      let answer;
+      if (c1) {
+        trace.push({ text: `Outer is True. Assign z = `, str: v1 });
+        answer = v1;
+      } else {
+        trace.push({ text: `Outer is False. Enter else. Assign z = `, str: v2 });
+        const c2 = evalOp(a, op2, b);
+        trace.push({ text: `Check inner: a ${op2} b → ${a} ${op2} ${b} is`, result: c2 });
+        if (c2) {
+          trace.push({ text: `Inner is True. Reassign z = `, str: v3 });
+          answer = v3;
+        } else {
+          trace.push({ text: `Inner is False. Enter else. Reassign z = `, str: v4 });
+          answer = v4;
+        }
+      }
+      trace.push({ text: `print(z) outputs `, str: answer });
+      return { lines, answer, trace };
+    },
+
+    // Template 3: nested if in BOTH branches
+    function tmplNestedBoth() {
+      const { a, b } = generateValues();
+      const op1 = choice(OPS), op2 = choice(OPS), op3 = choice(OPS);
+      const [v1, v2, v3, v4, v5, v6] = pickWords(6);
+      const lines = [
+        `a = ${a}`,
+        `b = ${b}`,
+        `z = ""`,
+        `if a ${op1} b:`,
+        `    z = "${v1}"`,
+        `    if a ${op2} b:`,
+        `        z = "${v2}"`,
+        `    else:`,
+        `        z = "${v3}"`,
+        `else:`,
+        `    z = "${v4}"`,
+        `    if a ${op3} b:`,
+        `        z = "${v5}"`,
+        `    else:`,
+        `        z = "${v6}"`,
+        ``,
+        `print(z)`
+      ];
+      const trace = [];
+      trace.push({ text: `Start with a = ${a}, b = ${b}, z = ""` });
+      const c1 = evalOp(a, op1, b);
+      trace.push({ text: `Check outer: a ${op1} b → ${a} ${op1} ${b} is`, result: c1 });
+      let answer;
+      if (c1) {
+        trace.push({ text: `Enter if branch. Assign z = `, str: v1 });
+        const c2 = evalOp(a, op2, b);
+        trace.push({ text: `Check inner: a ${op2} b → ${a} ${op2} ${b} is`, result: c2 });
+        if (c2) {
+          trace.push({ text: `Inner True. Reassign z = `, str: v2 });
+          answer = v2;
+        } else {
+          trace.push({ text: `Inner False. Reassign z = `, str: v3 });
+          answer = v3;
+        }
+      } else {
+        trace.push({ text: `Enter else branch. Assign z = `, str: v4 });
+        const c3 = evalOp(a, op3, b);
+        trace.push({ text: `Check inner: a ${op3} b → ${a} ${op3} ${b} is`, result: c3 });
+        if (c3) {
+          trace.push({ text: `Inner True. Reassign z = `, str: v5 });
+          answer = v5;
+        } else {
+          trace.push({ text: `Inner False. Reassign z = `, str: v6 });
+          answer = v6;
+        }
+      }
+      trace.push({ text: `print(z) outputs `, str: answer });
+      return { lines, answer, trace };
+    },
+
+    // Template 4: nested if with NO else, and nothing after (z may stay "")
+    // Teaches students that z retains its prior value if no branch matches.
+    function tmplNoElseInner() {
+      const { a, b } = generateValues();
+      const op1 = choice(OPS), op2 = choice(OPS);
+      const [v1, v2, v3] = pickWords(3);
+      const lines = [
+        `a = ${a}`,
+        `b = ${b}`,
+        `z = "${v1}"`,
+        `if a ${op1} b:`,
+        `    z = "${v2}"`,
+        `    if a ${op2} b:`,
+        `        z = "${v3}"`,
+        ``,
+        `print(z)`
+      ];
+      const trace = [];
+      trace.push({ text: `Start with a = ${a}, b = ${b}. Assign z = `, str: v1 });
+      const c1 = evalOp(a, op1, b);
+      trace.push({ text: `Check outer: a ${op1} b → ${a} ${op1} ${b} is`, result: c1 });
+      let answer;
+      if (c1) {
+        trace.push({ text: `Enter if. Reassign z = `, str: v2 });
+        const c2 = evalOp(a, op2, b);
+        trace.push({ text: `Check inner: a ${op2} b → ${a} ${op2} ${b} is`, result: c2 });
+        if (c2) {
+          trace.push({ text: `Inner True. Reassign z = `, str: v3 });
+          answer = v3;
+        } else {
+          trace.push({ text: `Inner False and no else. z keeps value `, str: v2 });
+          answer = v2;
+        }
+      } else {
+        trace.push({ text: `Outer False and no else after. z keeps value `, str: v1 });
+        answer = v1;
+      }
+      trace.push({ text: `print(z) outputs `, str: answer });
+      return { lines, answer, trace };
+    }
+
+  ];
+
+  function generateProblem() {
+    const template = choice(TEMPLATES);
+    return template();
+  }
+
+  // -------- Syntax highlighter --------
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  }
+
+  function highlight(line) {
+    // Tokenize first, then wrap. Avoids regex collisions with HTML attributes.
+    const tokens = [];
+    let i = 0;
+    const KEYWORDS = ['if', 'else', 'print'];
+    const TWO_CHAR_OPS = ['>=', '<=', '==', '!='];
+
+    while (i < line.length) {
+      const c = line[i];
+
+      // String literal
+      if (c === '"') {
+        let j = i + 1;
+        while (j < line.length && line[j] !== '"') j++;
+        tokens.push({ type: 'str', text: line.slice(i, Math.min(j + 1, line.length)) });
+        i = j + 1;
+        continue;
+      }
+
+      // Number
+      if (c >= '0' && c <= '9') {
+        let j = i;
+        while (j < line.length && line[j] >= '0' && line[j] <= '9') j++;
+        tokens.push({ type: 'num', text: line.slice(i, j) });
+        i = j;
+        continue;
+      }
+
+      // Two-character operators first
+      let matched = false;
+      for (const op of TWO_CHAR_OPS) {
+        if (line.slice(i, i + 2) === op) {
+          tokens.push({ type: 'op', text: op });
+          i += 2;
+          matched = true;
+          break;
+        }
+      }
+      if (matched) continue;
+
+      // Single-character operators
+      if (c === '>' || c === '<' || c === '=') {
+        tokens.push({ type: 'op', text: c });
+        i++;
+        continue;
+      }
+
+      // Word (identifier or keyword)
+      if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c === '_') {
+        let j = i;
+        while (j < line.length && ((line[j] >= 'a' && line[j] <= 'z') ||
+               (line[j] >= 'A' && line[j] <= 'Z') ||
+               (line[j] >= '0' && line[j] <= '9') ||
+               line[j] === '_')) j++;
+        const word = line.slice(i, j);
+        tokens.push({ type: KEYWORDS.includes(word) ? 'kw' : 'id', text: word });
+        i = j;
+        continue;
+      }
+
+      // Anything else: whitespace, punctuation
+      tokens.push({ type: 'other', text: c });
+      i++;
+    }
+
+    return tokens.map(t => {
+      const text = escapeHtml(t.text);
+      if (t.type === 'str') return '<span class="tok-str">' + text + '</span>';
+      if (t.type === 'num') return '<span class="tok-num">' + text + '</span>';
+      if (t.type === 'op')  return '<span class="tok-op">'  + text + '</span>';
+      if (t.type === 'kw')  return '<span class="tok-kw">'  + text + '</span>';
+      return text;
+    }).join('');
+  }
+
+  function renderCode(lines) {
+    return lines.map(highlight).join('\n');
+  }
+
+  // -------- Trace rendering --------
+
+  function renderTrace(trace) {
+    const parts = trace.map((step, i) => {
+      let inner = `<span class="step-num">${i + 1}.</span><span class="step-text">${escapeHtml(step.text)}`;
+      if (step.result === true)  inner += ' <span class="t">True</span>';
+      if (step.result === false) inner += ' <span class="f">False</span>';
+      if (step.str !== undefined) inner += `<span class="str">&quot;${escapeHtml(step.str)}&quot;</span>`;
+      inner += `</span>`;
+      return `<div class="step">${inner}</div>`;
+    }).join('');
+    return `<div class="trace">${parts}</div>`;
+  }
+
+  // -------- App state --------
+
+  const state = {
+    problem: null,
+    streak: 0,
+    solved: 0,
+    mode: 'answer', // 'answer' | 'retry' | 'done'
+  };
+
+  // -------- DOM refs --------
+
+  const codeBlock    = document.getElementById('codeBlock');
+  const answerInput  = document.getElementById('answerInput');
+  const submitBtn    = document.getElementById('submitBtn');
+  const feedback     = document.getElementById('feedback');
+  const streakEl     = document.getElementById('streak');
+  const solvedEl     = document.getElementById('solvedCount');
+  const problemPanel = document.getElementById('problemPanel');
+  const winPanel     = document.getElementById('winPanel');
+  const continueBtn  = document.getElementById('continueBtn');
+  const inputRow     = document.getElementById('inputRow');
+
+  // -------- Rendering --------
+
+  function updateScorebar() {
+    const pips = streakEl.querySelectorAll('.pip');
+    pips.forEach((pip, i) => {
+      pip.classList.toggle('lit', i < state.streak);
+    });
+    solvedEl.textContent = state.solved;
+  }
+
+  function loadNewProblem() {
+    state.problem = generateProblem();
+    state.mode = 'answer';
+    codeBlock.innerHTML = renderCode(state.problem.lines);
+    answerInput.value = '';
+    answerInput.disabled = false;
+    answerInput.placeholder = 'type your answer...';
+    submitBtn.textContent = 'Submit';
+    submitBtn.disabled = false;
+    feedback.classList.add('hidden');
+    feedback.innerHTML = '';
+    answerInput.focus();
+  }
+
+  function showWinScreen() {
+    problemPanel.classList.add('hidden');
+    winPanel.classList.remove('hidden');
+    winPanel.classList.add('pop');
+  }
+
+  function hideWinScreen() {
+    winPanel.classList.add('hidden');
+    winPanel.classList.remove('pop');
+    problemPanel.classList.remove('hidden');
+  }
+
+  // Normalize answers: trim, strip surrounding quotes, case-insensitive
+  function normalize(s) {
+    return String(s).trim().replace(/^["']|["']$/g, '').toLowerCase();
+  }
+
+  // -------- Handlers --------
+
+  function handleSubmit() {
+    if (state.mode === 'answer') {
+      const guess = normalize(answerInput.value);
+      if (guess === '') {
+        answerInput.focus();
+        return;
+      }
+
+      const correct = normalize(state.problem.answer);
+
+      if (guess === correct) {
+        // Correct path
+        state.streak++;
+        state.solved++;
+        updateScorebar();
+
+        feedback.className = 'feedback correct';
+        feedback.innerHTML = `
+          <h3><span class="icon">✓</span> Correct!</h3>
+          <div>Nice trace. <code class="answer-reveal">"${escapeHtml(state.problem.answer)}"</code> is exactly what prints.</div>
+        `;
+        feedback.classList.remove('hidden');
+
+        answerInput.disabled = true;
+        submitBtn.textContent = state.streak >= 3 ? 'Finish Streak' : 'Next Problem';
+        state.mode = 'next';
+
+        if (state.streak >= 3) {
+          // Hold briefly then show win screen
+          setTimeout(() => {
+            state.streak = 0;
+            updateScorebar();
+            showWinScreen();
+          }, 1200);
+        }
+      } else {
+        // Wrong path. Reset streak, show explanation, require correct answer to continue.
+        state.streak = 0;
+        updateScorebar();
+
+        problemPanel.classList.add('shake');
+        setTimeout(() => problemPanel.classList.remove('shake'), 400);
+
+        feedback.className = 'feedback wrong';
+        feedback.innerHTML = `
+          <h3><span class="icon">✗</span> Not quite. Let's trace it together.</h3>
+          <div>Walking through the code one line at a time:</div>
+          ${renderTrace(state.problem.trace)}
+          <div style="margin-top:12px">
+            The correct output is
+            <span class="answer-reveal">"${escapeHtml(state.problem.answer)}"</span>.
+            Take a second to read the trace above, then type the correct answer below to lock it in.
+          </div>
+          <div class="retry-box">
+            <div class="label"><span class="icon">↻</span> Type the correct answer to continue</div>
+          </div>
+        `;
+        feedback.classList.remove('hidden');
+
+        answerInput.value = '';
+        answerInput.placeholder = 'type the correct answer...';
+        answerInput.focus();
+        submitBtn.textContent = 'Check';
+        state.mode = 'retry';
+      }
+      return;
+    }
+
+    if (state.mode === 'retry') {
+      const guess = normalize(answerInput.value);
+      const correct = normalize(state.problem.answer);
+      if (guess === correct) {
+        // Retry success does NOT count toward solved or streak.
+        // Streak already reset on the wrong answer. This just gates progression.
+        feedback.innerHTML += '<div style="margin-top:10px;color:var(--success);font-weight:600">Locked in. That is the right answer. Moving on with a fresh problem.</div>';
+        submitBtn.textContent = 'Next Problem';
+        answerInput.disabled = true;
+        state.mode = 'next';
+      } else {
+        problemPanel.classList.add('shake');
+        setTimeout(() => problemPanel.classList.remove('shake'), 400);
+        answerInput.value = '';
+        answerInput.focus();
+      }
+      return;
+    }
+
+    if (state.mode === 'next') {
+      loadNewProblem();
+      return;
+    }
+  }
+
+  // -------- Events --------
+
+  submitBtn.addEventListener('click', handleSubmit);
+
+  answerInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    // N for next problem when not typing in input
+    if (e.key.toLowerCase() === 'n' && document.activeElement !== answerInput) {
+      if (state.mode === 'next') {
+        loadNewProblem();
+      }
+    }
+  });
+
+  continueBtn.addEventListener('click', () => {
+    hideWinScreen();
+    loadNewProblem();
+  });
+
+  // -------- Boot --------
+
+  updateScorebar();
+  loadNewProblem();
+
+})();
+</script>
+</body>
+</html>
